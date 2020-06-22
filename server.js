@@ -3,6 +3,12 @@
 //   - if command, validate query
 //   - if valid, search API
 
+const Discord = require('discord.js');
+const client = new Discord.Client();
+
+const credentials = require('./credentials');
+client.login(credentials.token);
+
 // search API
 //   - UK only
 //   - condition used
@@ -19,6 +25,6 @@
 
 // send message (query, price, accuracyMsg)
 
-//   `fair price for ${QUERY} is ${price}, accuracy is ${accuracyMsg},
+//   `fair price for ${QUERY} is ${price}, accuracy is ${accuracyMsg}.
 //   notice: pricing comes from ebay, maybe inaccurate even if bot suggests otheriwse.
 //   if I am downvoted, its probably wrong`

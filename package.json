@@ -1,0 +1,23 @@
+{
+  "name": "price-check-ebay",
+  "version": "1.0.0",
+  "description": "A tool to check fair price of hardware components from products sold on ebay",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlvieMahmud/price-check-ebay.git"
+  },
+  "author": "AlvieMahmud#9999",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlvieMahmud/price-check-ebay/issues"
+  },
+  "homepage": "https://github.com/AlvieMahmud/price-check-ebay#readme",
+  "dependencies": {
+    "discord.js": "^12.2.0"
+  }
+}
