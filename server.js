@@ -5,6 +5,7 @@
 
 const Discord = require('discord.js');
 const client = new Discord.Client();
+const _ = require('lodash');
 
 const credentials = require('./credentials');
 
@@ -14,8 +15,8 @@ client.once('ready', () => {
 
 client.on('message', message => {
 	if (message.content.startsWith('^check')) {
-		const query = message.content.slice(6);
-		const embedBox = createEmbedBox(query, "£250.00", "0.87");
+		const query = message.content.slice(6).trim();
+		const embedBox = createEmbedBox(query, "£250.00", confidenceCalc(4,0,100));
 		message.channel.send(embedBox);
 
 	}
@@ -36,7 +37,7 @@ function createEmbedBox(query, fairPrice, confidence) {
 			value: fairPrice
 		}, {
 			name: 'Confidence',
-			value: confidence
+			value: +confidence.toFixed(5) + '%'
 		})
 		.setTimestamp();
 
@@ -62,7 +63,16 @@ function createEmbedBox(query, fairPrice, confidence) {
 //   notice: pricing comes from ebay, maybe inaccurate even if bot suggests otheriwse.
 //   if I am downvoted, its probably wrong`
 
-// confidence calc
-// itemsAcc = (noOfItems * 0.1) // cap to 0.5
-// const priceRangeAcc = range / maxPrice; // 100/100 = 1 (cap to 0.5) 50 / 100 (0.5) / 0/100 (0)
-// const confidence = (0.5 - priceRangeAcc) 
+function confidenceCalc(noOfItems, range, maxPrice) {
+
+	// accuracy based on number of items (capped at 50%)
+	const itemsAcc = _.clamp((noOfItems * 0.1), 0, 0.5);
+
+	// accuracy based on the variance of price (capped at 50%)
+	const priceRangeAcc = _.clamp((range / maxPrice), 0, 0.5);
+	
+	// confidence based on above accuracies with priceRangeAcc inverted
+	const confidence = (0.5 - priceRangeAcc) + itemsAcc;
+
+	return confidence * 100;
+}
