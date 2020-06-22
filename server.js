@@ -61,3 +61,8 @@ function createEmbedBox(query, fairPrice, confidence) {
 //   `fair price for ${QUERY} is ${price}, accuracy is ${accuracyMsg}.
 //   notice: pricing comes from ebay, maybe inaccurate even if bot suggests otheriwse.
 //   if I am downvoted, its probably wrong`
+
+// confidence calc
+// itemsAcc = (noOfItems * 0.1) // cap to 0.5
+// const priceRangeAcc = range / maxPrice; // 100/100 = 1 (cap to 0.5) 50 / 100 (0.5) / 0/100 (0)
+// const confidence = (0.5 - priceRangeAcc) 
