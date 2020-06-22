@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/AlvieMahmud/price-check-ebay#readme",
   "dependencies": {
-    "discord.js": "^12.2.0"
+    "discord.js": "^12.2.0",
+    "lodash": "^4.17.15"
   }
 }
