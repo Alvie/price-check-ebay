@@ -7,8 +7,41 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 
 const credentials = require('./credentials');
+
+client.once('ready', () => {
+	console.log('Ready!');
+});
+
+client.on('message', message => {
+	if (message.content.startsWith('^check')) {
+		const query = message.content.slice(6);
+		const embedBox = createEmbedBox(query, "£250.00", "0.87");
+		message.channel.send(embedBox);
+
+	}
+});
+
 client.login(credentials.token);
 
+
+function createEmbedBox(query, fairPrice, confidence) {
+	const embedBox = new Discord.MessageEmbed()
+		.setColor('#0099ff')
+		.setTitle('Price Check Search Results')
+		.addFields({
+			name: 'Search',
+			value: query
+		}, {
+			name: 'Fair price',
+			value: fairPrice
+		}, {
+			name: 'Confidence',
+			value: confidence
+		})
+		.setTimestamp();
+
+	return embedBox;
+}
 // search API
 //   - UK only
 //   - condition used
