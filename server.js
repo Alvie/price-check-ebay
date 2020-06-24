@@ -3,6 +3,11 @@
 //   - if command, validate query
 //   - if valid, search API
 
+// Clamp function lodash alternative
+function clamp (num, clamp, higher) {
+  higher ? Math.min(Math.max(num, clamp), higher) : Math.min(num, clamp)
+}
+
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const _ = require('lodash');
@@ -66,10 +71,10 @@ function createEmbedBox(query, fairPrice, confidence) {
 function confidenceCalc(noOfItems, range, maxPrice) {
 
 	// accuracy based on number of items (capped at 50%)
-	const itemsAcc = _.clamp((noOfItems * 0.1), 0, 0.5);
+	const itemsAcc = clamp((noOfItems * 0.1), 0, 0.5);
 
 	// accuracy based on the variance of price (capped at 50%)
-	const priceRangeAcc = _.clamp((range / maxPrice), 0, 0.5);
+	const priceRangeAcc = clamp((range / maxPrice), 0, 0.5);
 	
 	// confidence based on above accuracies with priceRangeAcc inverted
 	const confidence = (0.5 - priceRangeAcc) + itemsAcc;
