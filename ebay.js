@@ -3,7 +3,6 @@
 const credentials = require('./credentials');
 const ebayNode = require('ebay-node-api');
 const u = require('./useful-functions');
-const boolSearchArr = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken'];
 
 // ebay conn
 const ebay = new ebayNode({
@@ -17,19 +16,20 @@ const ebay = new ebayNode({
 // this function adds in the required boolean search
 // operators for a better result
 function removeWords(inputStr) {
-	let newSearchArr = boolSearchArr;
+	let boolSearchArr = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken'];
+
 	for (const word of boolSearchArr) {
 		if (inputStr.includes(word)) {
-			newSearchArr = newSearchArr.filter(subStr => subStr !== word);
+			boolSearchArr = boolSearchArr.filter(subStr => subStr !== word);
 		}
 	}
-	return '-' + newSearchArr.join(' -'); // ['a', 'b'] -> '-a -b'
+	return '-' + boolSearchArr.join(' -'); // ['a', 'b'] -> '-a -b'
 }
 
 
 async function getSoldItems(query) {
 	const newQuery = query + ' ' + removeWords(query.toLowerCase()); // filter versions (pro, max, plus, ti, super, xt) etc
-	console.log('checking', newQuery)
+	console.log('checking: ', query)
 	try {
 		const data = await ebay.findCompletedItems({
 			keywords: newQuery,
