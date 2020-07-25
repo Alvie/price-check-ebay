@@ -107,7 +107,7 @@ function createEmbedBox(query, fairPrice, confidence, accuracyMsg) {
 		.setTitle('Price Check Search Results')
 		.addFields({
 			name: 'Search',
-			value: query
+			value: `\`${query}\``
 		}, {
 			name: 'Fair price',
 			value: '£' + fairPrice
