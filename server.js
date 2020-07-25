@@ -1,18 +1,19 @@
 const ebayNode = require('ebay-node-api');
 const Discord = require('discord.js');
-
 const credentials = require('./credentials');
-const prefix = 'e!';
 
+const prefix = 'e!'; // easily change prefix, also change
 const boolSearchArr = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken'];
 
-const clamp = (num, clamp, higher) =>
-	higher ? Math.min(Math.max(num, clamp), higher) : Math.min(num, clamp)
-
+// limit the value of a variable
+const clamp = (num, clamp, higher) => higher ? Math.min(Math.max(num, clamp), higher) : Math.min(num, clamp)
 // extract and convert ebay's price object to a float value
-function floatVal(priceObject) {
-	return parseFloat(priceObject.__value__);
-}
+const floatValue = priceObject => parseFloat(priceObject.__value__);
+// range = max-min of numeric Array
+const range = numArray => Math.max(...numArray) - Math.min(...numArray);
+// average = sum / quantity of numeric Array
+const average = numArray => numArray.reduce((a, b) => a + b, 0) / numArray.length;
+
 
 // ebay conn
 const ebay = new ebayNode({
@@ -27,51 +28,46 @@ const ebay = new ebayNode({
 // operators for a better result
 function removeWords(inputStr) {
 	let newSearchArr = boolSearchArr;
-	for(const word of boolSearchArr) {
-		if(inputStr.includes(word)){
+	for (const word of boolSearchArr) {
+		if (inputStr.includes(word)) {
 			newSearchArr = newSearchArr.filter(subStr => subStr !== word);
 		}
 	}
-  return '-' + newSearchArr.join(' -'); // ['a', 'b'] -> '-a -b'
+	return '-' + newSearchArr.join(' -'); // ['a', 'b'] -> '-a -b'
 }
 
-// search API
-//   - UK only [DONE]
-//   - condition used [DONE]
-//   - filter spares / repairs / faulty [TODO - semi done]
-//   - return prices (inc P&P) of last 5 sold [DONE]
-//   - filter versions (pro, max, plus, ti, super, xt) [DONE]
-async function getPriceArrayOfItem(query) {
-	console.log('checking', query)
-	newQuery = query + ' ' + removeWords(query.toLowerCase()); // filter versions (pro, max, plus, ti, super, xt)
-	console.log('newQuery', newQuery);
-	
+async function getSoldItems(query) {
+	newQuery = query + ' ' + removeWords(query.toLowerCase()); // filter versions (pro, max, plus, ti, super, xt) etc
+	console.log('checking', newQuery)
 	try {
 		const data = await ebay.findCompletedItems({
 			keywords: newQuery,
-			sortOrder: 'EndTimeSoonest', //https://developer.ebay.com/devzone/finding/callref/extra/fndcmpltditms.rqst.srtordr.html
-			Condition: 3000,
-			SoldItemsOnly: true,
-			entriesPerPage: 5
+			sortOrder: 'EndTimeSoonest', // Most Recent
+			Condition: 3000, // Used
+			SoldItemsOnly: true, // Sold & Completed
+			entriesPerPage: 10
 		});
 
-		let priceArray = [];
 		const items = data[0].searchResult[0].item;
-		if (!items) {
-			priceArray = [0];
-		} else {
-			for (item of items) {
-				const basePrice = floatVal(item.sellingStatus[0].currentPrice[0]);
-				const shipping = floatVal(item.shippingInfo[0].shippingServiceCost[0]);
-				const total = basePrice + shipping;
-				console.log(total);
-				priceArray.push(total);
-			}
-		}
-		return priceArray;
+		return items;
 	} catch (err) {
 		console.log('fetch failed', err);
 	}
+}
+
+function getPriceArray(items) {
+	let priceArray = [];
+	if (!items) {
+		priceArray = [0];
+	} else {
+		for (item of items) {
+			const basePrice = floatValue(item.sellingStatus[0].currentPrice[0]);
+			const shipping = floatValue(item.shippingInfo[0].shippingServiceCost[0]);
+			const total = basePrice + shipping;
+			priceArray.push(total);
+		}
+	}
+	return priceArray;
 }
 
 
@@ -82,24 +78,25 @@ async function getPriceArrayOfItem(query) {
 //   - if valid, search API
 const client = new Discord.Client();
 
-client.once('ready', () => {
+client.login(credentials.token); // login to discord
+
+client.once('ready', () => {     // initialise
 	console.log('Ready!');
 });
 
-client.on('message', async message => {
-	if (message.content.startsWith(`${prefix}check`)) {
-		const query = message.content.slice(8).trim();
-		const priceArray = await getPriceArrayOfItem(query);
+client.on('message', async message => {  // on message received
+	const check = `${prefix}check`;
+	if (message.content.startsWith(check)) {
+
+		const query = message.content.slice(check.length + 1).trim(); // remove prefix and commands from query
+		const soldItems = await getSoldItems(query);
+		const priceArray = getPriceArray(soldItems);
 		const fairPrice = getFairPrice(priceArray);
 
 		const embedBox = createEmbedBox(query, fairPrice.fairPrice, confidenceCalc(priceArray), fairPrice.accuracyMsg);
 		message.channel.send(embedBox);
-
 	}
 });
-
-client.login(credentials.token);
-
 
 function createEmbedBox(query, fairPrice, confidence, accuracyMsg) {
 	const embedBox = new Discord.MessageEmbed()
@@ -133,30 +130,31 @@ function createEmbedBox(query, fairPrice, confidence, accuracyMsg) {
 //   - return {price, accuracyMsg}
 
 function getFairPrice(priceArray) {
-	let accuracyMsg = '';
+	let accuracyMsg = '> Inaccurate: \n'; // set as Inaccurate as default
 
 	const noOfItems = priceArray.length;
-	const range = Math.max(...priceArray) - Math.min(...priceArray);
 	const maxPrice = Math.max(...priceArray);
 	let arrAvg = 0;
 
 	if (noOfItems < 5) {
-		accuracyMsg = '> inaccurate, not enough items to query'
+		accuracyMsg += '> - not enough items to query\n'
 	};
 	if (range / maxPrice >= 0.15) {
-		accuracyMsg = accuracyMsg + '> inaccurate, large price variance'
+		accuracyMsg += '> - large price variance\n'
 	};
-	if (noOfItems === 5) {
-		const medianPrices = priceArray.sort((a, b) => a - b).slice(1, 4);
-		arrAvg = medianPrices.reduce((a, b) => a + b, 0) / 3;
+	if (noOfItems >= 5) {
+		const medianPrices = priceArray.sort((a, b) => a - b).slice(1, -1); // removes min and max
+		arrAvg = average(medianPrices);
 	} else {
-		arrAvg = priceArray.reduce((a, b) => a + b, 0) / noOfItems;
+		arrAvg = average(priceArray);
 	}
 
 	const fairPrice = (arrAvg * 0.9).toFixed(2);
-	if (accuracyMsg === '') {
-		accuracyMsg = "accurate, always double check"
+	if (accuracyMsg === '> Inaccurate: \n') { // remove default if no change
+		accuracyMsg = '> Accurate \n';
 	}
+
+	accuracyMsg +=  '- always double check';
 
 	return {
 		fairPrice,
@@ -165,23 +163,17 @@ function getFairPrice(priceArray) {
 
 }
 
-
 function confidenceCalc(priceArray) {
 	const noOfItems = priceArray.length;
 	const maxPrice = Math.max(...priceArray);
-	const range = Math.max(...priceArray) - Math.min(...priceArray);
 
 	// accuracy based on number of items (capped at 50%)
 	const itemsAcc = clamp((noOfItems * 0.1), 0, 0.5);
-	console.log('itemacc', itemsAcc);
 
 	// accuracy based on the variance of price (capped at 50%)
-	const priceRangeAcc = clamp((range / maxPrice), 0, 0.5);
-	console.log('prAcc', priceRangeAcc);
+	const priceRangeAcc = clamp((range(priceArray) / maxPrice), 0, 0.5);
 
 	// confidence based on above accuracies with priceRangeAcc inverted
 	const confidence = (0.5 - priceRangeAcc) + itemsAcc;
-
-	console.log('confidence', confidence);
 	return confidence * 100;
 }
