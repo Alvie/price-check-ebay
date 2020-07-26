@@ -16,7 +16,7 @@ const ebay = new ebayNode({
 // this function adds in the required boolean search
 // operators for a better result
 function removeWords(query) {
-	let boolSearchArr = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken'];
+	let boolSearchArr = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken', 'with'];
 
 	for (const word of boolSearchArr) {
 		// remove word from boolean search list if word is in the query
@@ -47,6 +47,7 @@ async function getSoldItems(query) {
 			entriesPerPage: 10
 		});
 
+		if (!data[0].searchResult) { return; }
 		const items = data[0].searchResult[0].item;
 		return items;
 	} catch (err) {
