@@ -27,6 +27,7 @@ client.on('message', async message => { // on message received
 	}
 });
 
+// return an embed box with information regarding the results found
 async function getEmbedBox(query){
 			const soldItems = await ebay.getSoldItems(query);
 	
@@ -43,6 +44,11 @@ async function getEmbedBox(query){
 			}
 }
 
+// creates a new embed box with specified parameters
+// query = String
+// fairPrice = String / Numeric Value
+// confidence = Float / Numeric Value
+// accuracyMsd = String
 function createEmbedBox(query, fairPrice, confidence, accuracyMsg) {
 	const embedBox = new Discord.MessageEmbed()
 		.setColor('#0099ff')
