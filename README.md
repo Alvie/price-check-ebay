@@ -2,7 +2,7 @@
  A tool that helps finding average price of product sold on ebay
 
 ## Installation
-- Fork this repository
+- Clone this repository
 - run `npm i`
 - set your prefix in `config.json` (default: £)
 - set your discord token and ebay clientId in `credentials.json`
