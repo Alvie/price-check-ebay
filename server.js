@@ -39,7 +39,7 @@ async function getEmbedBox(query){
 				return createEmbedBox(query, fairPrice, confidence, accuracyMsg);
 			}
 			else {
-				return createEmbedBox(query, 'N/A', 0, '> No items found for above query\n> Please try another search term');
+				return createEmbedBox(query, 'N/A', 0, '> No items found for above query\n> Please try another search term\n> If you feel this is in error, PM @AlvieMahmud#9999');
 			}
 }
 

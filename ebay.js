@@ -15,21 +15,29 @@ const ebay = new ebayNode({
 
 // this function adds in the required boolean search
 // operators for a better result
-function removeWords(inputStr) {
+function removeWords(query) {
 	let boolSearchArr = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken'];
 
 	for (const word of boolSearchArr) {
-		if (inputStr.includes(word)) {
+		// remove word from boolean search list if word is in the query
+		if (query.includes(word)) {
+			boolSearchArr = boolSearchArr.filter(subStr => subStr !== word);
+		}
+		// common inclusion of 'max' in title of processors (i.e max boost);
+		if (word === 'max' && (query.includes('amd') || query.includes('intel'))) {
 			boolSearchArr = boolSearchArr.filter(subStr => subStr !== word);
 		}
 	}
-	return '-' + boolSearchArr.join(' -'); // ['a', 'b'] -> '-a -b'
+	return `${query} -${boolSearchArr.join(' -')}` ; // ['a', 'b'] -> 'query -a -b' i.e. iPhone 11 -pro -max etc
 }
 
-
+// searches ebay for the most recent sold items
+// for a given search term
+// and returns items as an array
 async function getSoldItems(query) {
+	console.log('Checking: ', query)
 	const newQuery = query + ' ' + removeWords(query.toLowerCase()); // filter versions (pro, max, plus, ti, super, xt) etc
-	console.log('checking: ', query)
+	console.log(newQuery);
 	try {
 		const data = await ebay.findCompletedItems({
 			keywords: newQuery,
@@ -43,15 +51,14 @@ async function getSoldItems(query) {
 		return items;
 	} catch (err) {
 		console.log('fetch failed', err);
+		return;
 	}
 }
 
 // get the total price of each item sold from an array of items
 function getPriceArray(items) {
 	let priceArray = [];
-	if (!items) {
-		priceArray = [0];
-	} else {
+	if (items) { // if not an empty array
 		for (const item of items) {
 			const basePrice = u.floatValue(item.sellingStatus[0].currentPrice[0]);
 			const shipping = u.floatValue(item.shippingInfo[0].shippingServiceCost[0]);
@@ -67,7 +74,7 @@ function getPriceArray(items) {
 //   - return {price, accuracyMsg}
 function getFairPrice(priceArray) {
 	let arrAvg = 0;
-	
+
 	// if more than five values found, remove the most extreme values and take an average
 	if (priceArray.length >= 5) {
 		const medianPrices = priceArray.sort((a, b) => a - b).slice(1, -1); // removes min and max
@@ -103,8 +110,12 @@ function getAccuracyMsg(priceArray) {
 	let accuracyMsg = '> **Inaccurate:** \n'; // set as Inaccurate as default
 
 	// append inacccuracy messages
-	if (priceArray.length < 5) { accuracyMsg += '> - not enough items to query\n' };
-	if (u.range(priceArray) / u.average(priceArray) >= 0.15) { accuracyMsg += '> - large price variance\n'	};
+	if (priceArray.length < 5) {
+		accuracyMsg += '> - not enough items to query\n'
+	};
+	if (u.range(priceArray) / u.average(priceArray) >= 0.15) {
+		accuracyMsg += '> - large price variance\n'
+	};
 
 	if (accuracyMsg === '> **Inaccurate:** \n') { // remove default if no change
 		accuracyMsg = '> **Accurate** \n';
