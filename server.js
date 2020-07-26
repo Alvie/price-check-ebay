@@ -3,12 +3,13 @@
 const credentials = require('./credentials');
 const Discord = require('discord.js');
 const ebay = require('./ebay');
-const prefix = 'e!'; // easily change prefix
 
-// incoming feed of discord posts
-//   - find where command is sent
-//   - if command, validate query
-//   - if valid, search API
+ // easily change prefix
+const prefix = 'e!';
+// check if string has non-ASCII characters
+const nonASCII = str => [...str].some(char => char.charCodeAt(0) > 127);
+
+// instantiate a discord client
 const client = new Discord.Client();
 
 client.login(credentials.token); // login to discord
@@ -21,9 +22,9 @@ client.on('message', async message => { // on message received
 	const check = `${prefix}check`;
 	const help = `${prefix}help`;
 	const helpMsg = `The command is:
-\`e!check\`  followed by the product name
+\`${check}\`  followed by the product name
 **Example**
-> e!check AMD Ryzen 7 3700x
+> ${check} AMD Ryzen 7 3700x
 	
 For more popular items, you'll get better results with specificity.
 **Example**
@@ -38,8 +39,10 @@ If you believe that there is a significant error or no results when there should
 
 	if (message.content.startsWith(prefix)) { // ignore any messages that doesn't start with prefix
 		if (message.content.startsWith(check)) {
-			if (message.content.length <= check.length + 9) { // ignore queries with less than 9 characters for product name
-				message.channel.send(`You must include a product name (longer than 8 characters) with your check.\n**Example**\n> ${check} AMD Ryzen 7 3700X`);
+			if (message.content.length <= check.length + 9 || message.content.length >= check.length + 50 ) { // ignore queries with less than 9 characters for product name
+				message.channel.send(`You must include a product name (longer than 8 characters / less than 50 characters) with your check.\n**Example**\n> ${check} AMD Ryzen 7 3700X`);
+			} else if (nonASCII(message.content)) {
+				message.channel.send(`Product name cannot contain non ASCII characters`);
 			} else {
 				const query = message.content.slice(check.length + 1).trim(); // remove prefix and command from query
 				message.channel.send(await getEmbedBox(query));

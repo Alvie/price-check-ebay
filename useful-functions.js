@@ -9,6 +9,7 @@ const range = numArray => Math.max(...numArray) - Math.min(...numArray);
 // average = sum / quantity of numeric Array
 const average = numArray => numArray.reduce((a, b) => a + b, 0) / numArray.length;
 
+
 module.exports = {
 	clamp,
 	floatValue,

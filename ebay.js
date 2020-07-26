@@ -72,7 +72,6 @@ function getPriceArray(items) {
 
 // calculate fair price
 //   - calculate average price & multiply by * 0.9
-//   - return {price, accuracyMsg}
 function getFairPrice(priceArray) {
 	let arrAvg = 0;
 
