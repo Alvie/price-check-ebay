@@ -121,7 +121,7 @@ function getConfidenceMsg(priceArray, priceBP) {
 	if (noOfItems < 5) {
 		confidenceMsg += `> - only ${noOfItems} item(s) checked\n`
 	};
-	if (priceBP.variance < 0.35) {
+	if (priceBP.variance < 0.55) {
 		confidenceMsg += '> - large price variance\n'
 	};
 
@@ -129,7 +129,7 @@ function getConfidenceMsg(priceArray, priceBP) {
 		confidenceMsg = '> **Confident** \n';
 	}
 
-	confidenceMsg += '**⚠ Always double check ⚠**';
+	confidenceMsg += '**⚠     Always double check     ⚠**\n Downvote if wrong / Upvote if right';
 
 	return confidenceMsg;
 }
