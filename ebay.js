@@ -5,7 +5,7 @@ const ebayNode = require('ebay-node-api');
 const u = require('./useful-functions');
 const { boxPlot } = require('./useful-functions');
 
-// ebay conn
+// ebay connection
 const ebay = new ebayNode({
 	clientID: credentials.clientId,
 	countryCode: 'EBAY-GB',
@@ -78,6 +78,7 @@ function getPriceArray(items) {
 			const basePrice = u.floatValue(item.sellingStatus[0].currentPrice[0]);
 			const shipping = u.floatValue(item.shippingInfo[0].shippingServiceCost[0]);
 			const total = basePrice + shipping;
+			console.log(total);
 			priceArray.push(total);
 		}
 	}

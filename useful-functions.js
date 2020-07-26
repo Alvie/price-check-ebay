@@ -57,7 +57,7 @@ class boxPlot {
 		if (varianceRange === 0) {
 			return 1;
 		} else {
-			return this.interQuartile / range;
+			return this.interQuartile / varianceRange;
 		}
 	}
 }
