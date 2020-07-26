@@ -33,5 +33,4 @@ For rare items, you'll get better results with less specificity.
 If you believe that there is a significant error or no results when there should be, please DM `@AlvieMahmud#9999` with your query, expected results and results you received.
 
 ## Improvements
-- High variance is currently calculted as the range being 15% or more than the average price, a better variance algorithm should be used
-- Many parts, specifically surrounding loops / conditions etc, may benefit from some optimisation and/or a refactor
+- Many parts, specifically surrounding the boxPlot class may benefit from some optimisation and/or a refactor
