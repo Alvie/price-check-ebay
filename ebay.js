@@ -50,7 +50,7 @@ function getQueryString(query) {
 // for a given search term
 // and returns items as an array
 async function getSoldItems(query) {
-	console.log('Checking: ', query)
+	console.log('Checking:', query)
 	const queryString = getQueryString(query.toLowerCase()); // filter versions (pro, max, plus, ti, super, xt) etc (NOTE: remove this line if you will not be filtering)
 	try {
 		const data = await ebay.findCompletedItems({
@@ -97,12 +97,12 @@ function getFairPrice(priceBP) {
 function getConfidence(priceArray, priceBP) {
 	//const maxPrice = Math.max(...priceArray);
 
-	// accuracy based on number of items (capped at 50%)
+	// confidence based on number of items (capped at 50%)
 	const itemsAcc = u.clamp((priceArray.length * 0.1), 0, 0.5);
 
-	// accuracy based on the variance of price (capped at 50%)
+	// confidence based on the variance of price (capped at 50%)
 	//const priceBP = new boxPlot(priceArray);
-	console.log(priceBP.variance)
+	console.log('Variance:', priceBP.variance)
 	const priceRangeAcc = u.clamp(priceBP.variance/1.7, 0, 0.5); // could divide by 2 instead of 1.7 to remove need for clamp
 																 // set at 1.7 to seem more 'confident'
 
@@ -111,28 +111,28 @@ function getConfidence(priceArray, priceBP) {
 	return confidence * 100;
 }
 
-// include accuracy message
+// include confidence message
 //   - find price range
-//   - if not 5 sold, accuracyMsg =  'inaccurate, not enough items to query'
-//   - if price range >= 15% of average price, accuracy = 'inaccurate, large variance'
-function getAccuracyMsg(priceArray, priceBP) {
-	let accuracyMsg = '> **Inaccurate:** \n'; // set as Inaccurate as default
-
-	// append inacccuracy messages
-	if (priceArray.length < 5) {
-		accuracyMsg += '> - not enough items to query\n'
+//   - if not 5 sold, confidenceMsg =  'not confident, not enough items to query'
+//   - if price range >= 15% of average price, confidenceMsg = 'not confident, large variance'
+function getConfidenceMsg(priceArray, priceBP) {
+	let confidenceMsg = '> **Not confident:** \n'; // set as Not confident as default
+	const noOfItems = priceArray.length;
+	// append not confident messages
+	if (noOfItems < 5) {
+		confidenceMsg += `> - only ${noOfItems} item(s) checked\n`
 	};
 	if (priceBP.variance < 0.35) {
-		accuracyMsg += '> - large price variance\n'
+		confidenceMsg += '> - large price variance\n'
 	};
 
-	if (accuracyMsg === '> **Inaccurate:** \n') { // remove default if no change
-		accuracyMsg = '> **Accurate** \n';
+	if (confidenceMsg === '> **Not confident:** \n') { // remove default if no change
+		confidenceMsg = '> **Confident** \n';
 	}
 
-	accuracyMsg += '**⚠ Always double check ⚠**';
+	confidenceMsg += '**⚠ Always double check ⚠**';
 
-	return accuracyMsg;
+	return confidenceMsg;
 }
 
 module.exports = {
@@ -140,5 +140,5 @@ module.exports = {
 	getPriceArray,
 	getFairPrice,
 	getConfidence,
-	getAccuracyMsg
+	getConfidenceMsg
 };

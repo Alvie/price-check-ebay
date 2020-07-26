@@ -53,7 +53,12 @@ class boxPlot {
 	}
 
 	get variance() { 
-		return this.interQuartile / (this.max - this.min);
+		const varianceRange = (this.max - this.min);
+		if (varianceRange === 0) {
+			return 1;
+		} else {
+			return this.interQuartile / range;
+		}
 	}
 }
 

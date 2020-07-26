@@ -39,9 +39,9 @@ async function getEmbedBox(query) {
 		const fairPrice = ebay.getFairPrice(priceBP);
 		console.log('Price: £' + fairPrice);
 		const confidence = ebay.getConfidence(priceArray, priceBP);
-		const accuracyMsg = ebay.getAccuracyMsg(priceArray, priceBP);
+		const confidenceMsg = ebay.getConfidenceMsg(priceArray, priceBP);
 
-		return createEmbedBox(query, fairPrice, confidence, accuracyMsg);
+		return createEmbedBox(query, fairPrice, confidence, confidenceMsg);
 	} else {
 		return createEmbedBox(query, 'N/A', 0, '> No items found for above query\n> Please try another search term\n> If you feel this is in error, PM @AlvieMahmud#9999');
 	}
@@ -51,8 +51,8 @@ async function getEmbedBox(query) {
 // query = String
 // fairPrice = String / Numeric Value
 // confidence = Float / Numeric Value
-// accuracyMsd = String
-function createEmbedBox(query, fairPrice, confidence, accuracyMsg) {
+// confidenceMsg = String
+function createEmbedBox(query, fairPrice, confidence, confidenceMsg) {
 	const embedBox = new Discord.MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle('Price Check Search Results')
@@ -67,7 +67,7 @@ function createEmbedBox(query, fairPrice, confidence, accuracyMsg) {
 			value: +confidence.toFixed(5) + '%'
 		}, {
 			name: 'Notes',
-			value: accuracyMsg
+			value: confidenceMsg
 		}, )
 		.setTimestamp();
 
