@@ -2,6 +2,7 @@
 
 const ebay = require('../ebay');
 const Discord = require('discord.js');
+const u = require('../useful-functions');
 // easily change prefix in config.json
 const { prefix } = require('../config.json');
 
@@ -27,15 +28,18 @@ module.exports = {
 	},
 };
 
+
 // return an embed box with information regarding the results found
 async function getEmbedBox(query) {
 	const soldItems = await ebay.getSoldItems(query);
 
 	if (soldItems) { // if items found
 		const priceArray = ebay.getPriceArray(soldItems);
-		const fairPrice = ebay.getFairPrice(priceArray);
-		const confidence = ebay.getConfidence(priceArray);
-		const accuracyMsg = ebay.getAccuracyMsg(priceArray);
+		const priceBP = new u.boxPlot(priceArray);
+		const fairPrice = ebay.getFairPrice(priceBP);
+		console.log('Price: £' + fairPrice);
+		const confidence = ebay.getConfidence(priceArray, priceBP);
+		const accuracyMsg = ebay.getAccuracyMsg(priceArray, priceBP);
 
 		return createEmbedBox(query, fairPrice, confidence, accuracyMsg);
 	} else {

@@ -3,6 +3,7 @@
 const credentials = require('./credentials');
 const ebayNode = require('ebay-node-api');
 const u = require('./useful-functions');
+const { boxPlot } = require('./useful-functions');
 
 // ebay conn
 const ebay = new ebayNode({
@@ -51,7 +52,6 @@ function getQueryString(query) {
 async function getSoldItems(query) {
 	console.log('Checking: ', query)
 	const queryString = getQueryString(query.toLowerCase()); // filter versions (pro, max, plus, ti, super, xt) etc (NOTE: remove this line if you will not be filtering)
-	console.log(queryString);
 	try {
 		const data = await ebay.findCompletedItems({
 			keywords: queryString, // (NOTE: change to query if you will not be filtering)
@@ -86,33 +86,28 @@ function getPriceArray(items) {
 
 // calculate fair price
 //   - calculate average price & multiply by * 0.9
-function getFairPrice(priceArray) {
-	let arrAvg = 0;
-
-	// if more than five values found, remove the most extreme values and take an average
-	if (priceArray.length >= 5) {
-		const medianPrices = priceArray.sort((a, b) => a - b).slice(1, -1); // removes min and max
-		arrAvg = u.average(medianPrices);
-	} else {
-		arrAvg = u.average(priceArray);
-	}
-
+function getFairPrice(priceBP) {
+	//const priceBP = new boxPlot(priceArray);
+	const arrAvg = priceBP.avgNoOutliers;
 	return (arrAvg * 0.9).toFixed(2); // 10% off of average to account for ebay fees
 }
 
 // get confidence as percentage
 // based on noOfItems found and the price range
-function getConfidence(priceArray) {
-	const maxPrice = Math.max(...priceArray);
+function getConfidence(priceArray, priceBP) {
+	//const maxPrice = Math.max(...priceArray);
 
 	// accuracy based on number of items (capped at 50%)
 	const itemsAcc = u.clamp((priceArray.length * 0.1), 0, 0.5);
 
 	// accuracy based on the variance of price (capped at 50%)
-	const priceRangeAcc = u.clamp((u.range(priceArray) / maxPrice), 0, 0.5);
+	//const priceBP = new boxPlot(priceArray);
+	console.log(priceBP.variance)
+	const priceRangeAcc = u.clamp(priceBP.variance/1.7, 0, 0.5); // could divide by 2 instead of 1.7 to remove need for clamp
+																 // set at 1.7 to seem more 'confident'
 
 	// confidence based on above accuracies with priceRangeAcc inverted
-	const confidence = (0.5 - priceRangeAcc) + itemsAcc;
+	const confidence = priceRangeAcc + itemsAcc;
 	return confidence * 100;
 }
 
@@ -120,14 +115,14 @@ function getConfidence(priceArray) {
 //   - find price range
 //   - if not 5 sold, accuracyMsg =  'inaccurate, not enough items to query'
 //   - if price range >= 15% of average price, accuracy = 'inaccurate, large variance'
-function getAccuracyMsg(priceArray) {
+function getAccuracyMsg(priceArray, priceBP) {
 	let accuracyMsg = '> **Inaccurate:** \n'; // set as Inaccurate as default
 
 	// append inacccuracy messages
 	if (priceArray.length < 5) {
 		accuracyMsg += '> - not enough items to query\n'
 	};
-	if (u.range(priceArray) / u.average(priceArray) >= 0.15) {
+	if (priceBP.variance < 0.35) {
 		accuracyMsg += '> - large price variance\n'
 	};
 
