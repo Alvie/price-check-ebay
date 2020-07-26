@@ -36,7 +36,7 @@ function removeWords(query) {
 // and returns items as an array
 async function getSoldItems(query) {
 	console.log('Checking: ', query)
-	const newQuery = query + ' ' + removeWords(query.toLowerCase()); // filter versions (pro, max, plus, ti, super, xt) etc
+	const newQuery = removeWords(query.toLowerCase()); // filter versions (pro, max, plus, ti, super, xt) etc
 	console.log(newQuery);
 	try {
 		const data = await ebay.findCompletedItems({
@@ -121,8 +121,7 @@ function getAccuracyMsg(priceArray) {
 		accuracyMsg = '> **Accurate** \n';
 	}
 
-	accuracyMsg += '> **- always double check**';
-
+	accuracyMsg += '**⚠ Always double check ⚠**';
 
 	return accuracyMsg;
 }
