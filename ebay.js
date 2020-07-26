@@ -13,22 +13,36 @@ const ebay = new ebayNode({
 	}
 });
 
+// filters words that exist in query string to
+// avoid contradiction which leads to no results (e.g. iPhone 11 Pro -pro)
+// (NOTE: remove or adapt this function if you will not be filtering for hardware)
+function filterWords(query) {
+	const wordArray = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken', 'with'];
+	return wordArray.filter(word => !query.includes(word));
+}
+
+// adds in edge cases for query
+// (NOTE: remove or adapt this function if you will not be filtering for hardware)
+function addEdgeCases(wordArray, query) {
+	// common inclusion of 'max' in product title of processors (i.e. max boost);
+	if (wordArray.includes('max') && (query.includes('amd') || query.includes('intel'))) {
+		return wordArray.filter(word => word !== 'max'); // removes word max the array
+	}
+	else {
+		return wordArray;
+	}
+}
+
 // this function adds in the required boolean search
 // operators for a better result
-function removeWords(query) {
-	let boolSearchArr = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken', 'with'];
-
-	for (const word of boolSearchArr) {
-		// remove word from boolean search list if word is in the query
-		if (query.includes(word)) {
-			boolSearchArr = boolSearchArr.filter(subStr => subStr !== word);
-		}
-		// common inclusion of 'max' in title of processors (i.e max boost);
-		if (word === 'max' && (query.includes('amd') || query.includes('intel'))) {
-			boolSearchArr = boolSearchArr.filter(subStr => subStr !== word);
-		}
-	}
-	return `${query} -${boolSearchArr.join(' -')}` ; // ['a', 'b'] -> 'query -a -b' i.e. iPhone 11 -pro -max etc
+// (NOTE: remove or adapt this function if you will not be filtering for hardware)
+function getQueryString(query) {
+	// filter out words that are in query and then add in edge cases
+	const wordsToRemove = addEdgeCases(
+		filterWords(query),
+		query
+	);
+	return `${query} -${wordsToRemove.join(' -')}`; // ['a', 'b'] -> 'query -a -b' i.e. iPhone 11 -pro -max etc
 }
 
 // searches ebay for the most recent sold items
@@ -36,11 +50,11 @@ function removeWords(query) {
 // and returns items as an array
 async function getSoldItems(query) {
 	console.log('Checking: ', query)
-	const newQuery = removeWords(query.toLowerCase()); // filter versions (pro, max, plus, ti, super, xt) etc
-	console.log(newQuery);
+	const queryString = getQueryString(query.toLowerCase()); // filter versions (pro, max, plus, ti, super, xt) etc (NOTE: remove this line if you will not be filtering)
+	console.log(queryString);
 	try {
 		const data = await ebay.findCompletedItems({
-			keywords: newQuery,
+			keywords: queryString, // (NOTE: change to query if you will not be filtering)
 			sortOrder: 'EndTimeSoonest', // Most Recent
 			Condition: 3000, // Used
 			SoldItemsOnly: true, // Sold & Completed

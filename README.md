@@ -9,7 +9,9 @@
 - run `node server`
 
 #### Adaptability
-This price check bot is geared towards used hardware prices in the UK. You can change location in the `ebay.js` file. Remove or adapt the removeWords() function in `ebay.js` as they contain hardware specific boolean search terms for filtering (Note: `function getSoldItems` uses removeWords(), but you may use `query` instead of `newQuery` for the keyword.)
+This price check bot is geared towards used hardware prices in the UK. You can change location in the `ebay.js` file.  
+Remove or adapt the `getQueryString`, `filterWords`, `addEdgeCases` functions in `ebay.js` as they contain hardware specific boolean search terms for filtering.  
+**(Note: `function getSoldItems` uses `getQueryString()`, but you may use `query` instead of `queryString` for the keywords if you do not intend to use the filtering functions.)**
 
 You can also change various parameters such as between new/used, sort order, etc in `ebay.js` using the codes available from https://developer.ebay.com/DevZone/finding/CallRef/findCompletedItems.html
 
