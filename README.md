@@ -1,11 +1,24 @@
 # price-check-ebay
  A tool that helps finding average price of product sold on ebay
 
+## Installation
+- Fork this repository
+- run `npm i`
+- set your prefix in `config.json` (default: £)
+- set your discord token and ebay clientId in `credentials.json`
+- run `node server`
+
+#### Adaptability
+This price check bot is geared towards used hardware prices in the UK. You can change location in the `ebay.js` file. Remove or adapt the removeWords() function in `ebay.js` as they contain hardware specific boolean search terms for filtering (Note: `function getSoldItems` uses removeWords(), but you may use `query` instead of `newQuery` for the keyword.)
+
+You can also change various parameters such as between new/used, sort orde, etc in `ebay.js` using the codes available from https://developer.ebay.com/DevZone/finding/CallRef/findCompletedItems.html
+
+
 ## Usage
 The command is:
-`e!check`  followed by the product name  
+`£check`  followed by the product name  
 **Example**
-> e!check AMD Ryzen 7 3700x
+> £check AMD Ryzen 7 3700x
 	
 For more popular items, you'll get better results with specificity.  
 **Example**

@@ -2,15 +2,23 @@
 
 const credentials = require('./credentials');
 const Discord = require('discord.js');
-const ebay = require('./ebay');
+const fs = require('fs');
 
- // easily change prefix
-const prefix = 'e!';
-// check if string has non-ASCII characters
-const nonASCII = str => [...str].some(char => char.charCodeAt(0) > 127);
+// easily change prefix in the config.json file
+const { prefix } = require('./config.json');
 
 // instantiate a discord client
 const client = new Discord.Client();
+client.commands = new Discord.Collection();
+
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+	client.commands.set(command.name, command);
+}
+
+const cooldowns = new Discord.Collection();
 
 client.login(credentials.token); // login to discord
 
@@ -18,81 +26,54 @@ client.once('ready', () => { // initialise
 	console.log('Ready!');
 });
 
-client.on('message', async message => { // on message received
-	const check = `${prefix}check`;
-	const help = `${prefix}help`;
-	const helpMsg = `The command is:
-\`${check}\`  followed by the product name
-**Example**
-> ${check} AMD Ryzen 7 3700x
-	
-For more popular items, you'll get better results with specificity.
-**Example**
-> 'EVGA RTX 2070 SUPER XC ULTRA' will get better results than 'EVGA RTX 2070'
-	
-For rare items, you'll get better results with less specificity.
-**Example**
-> 'Corsair SF450' will get better results than 'Corsair SF450 80+ Gold Modular PSU'
-	
-If you believe that there is a significant error or no results when there should be, please DM \`@AlvieMahmud#9999\` with your query, expected results and results you received.
-	`;
+client.on('message', message => { // on message received
 
-	if (message.content.startsWith(prefix)) { // ignore any messages that doesn't start with prefix
-		if (message.content.startsWith(check)) {
-			if (message.content.length <= check.length + 9 || message.content.length >= check.length + 50 ) { // ignore queries with less than 9 characters for product name
-				message.channel.send(`You must include a product name (longer than 8 characters / less than 50 characters) with your check.\n**Example**\n> ${check} AMD Ryzen 7 3700X`);
-			} else if (nonASCII(message.content)) {
-				message.channel.send(`Product name cannot contain non ASCII characters`);
-			} else {
-				const query = message.content.slice(check.length + 1).trim(); // remove prefix and command from query
-				message.channel.send(await getEmbedBox(query));
-			}
+	const args = message.content.slice(prefix.length).trim().split(/ +/);
+	const commandName = args.shift().toLowerCase();
+
+	const command = client.commands.get(commandName)
+		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+
+	if (!command) return;
+
+	if (command.guildOnly && message.channel.type !== 'text') {
+		return message.reply('I can\'t execute that command inside DMs!');
+	}
+
+	if (command.args && !args.length) {
+		let reply = `You didn't provide any arguments, ${message.author}!`;
+
+		if (command.usage) {
+			reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
 		}
-		if (message.content.startsWith(help)) {
-			message.channel.send(helpMsg);
+
+		return message.channel.send(reply);
+	}
+
+	if (!cooldowns.has(command.name)) {
+		cooldowns.set(command.name, new Discord.Collection());
+	}
+
+	const now = Date.now();
+	const timestamps = cooldowns.get(command.name);
+	const cooldownAmount = (command.cooldown || 3) * 1000;
+
+	if (timestamps.has(message.author.id)) {
+		const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+		if (now < expirationTime) {
+			const timeLeft = (expirationTime - now) / 1000;
+			return message.reply(`please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`);
 		}
+	}
+
+	timestamps.set(message.author.id, now);
+	setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+
+	try {
+		command.execute(message, args);
+	} catch (error) {
+		console.error(error);
+		message.reply('there was an error trying to execute that command!');
 	}
 });
-
-// return an embed box with information regarding the results found
-async function getEmbedBox(query) {
-	const soldItems = await ebay.getSoldItems(query);
-
-	if (soldItems) { // if items found
-		const priceArray = ebay.getPriceArray(soldItems);
-		const fairPrice = ebay.getFairPrice(priceArray);
-		const confidence = ebay.getConfidence(priceArray);
-		const accuracyMsg = ebay.getAccuracyMsg(priceArray);
-
-		return createEmbedBox(query, fairPrice, confidence, accuracyMsg);
-	} else {
-		return createEmbedBox(query, 'N/A', 0, '> No items found for above query\n> Please try another search term\n> If you feel this is in error, PM @AlvieMahmud#9999');
-	}
-}
-
-// creates a new embed box with specified parameters
-// query = String
-// fairPrice = String / Numeric Value
-// confidence = Float / Numeric Value
-// accuracyMsd = String
-function createEmbedBox(query, fairPrice, confidence, accuracyMsg) {
-	const embedBox = new Discord.MessageEmbed()
-		.setColor('#0099ff')
-		.setTitle('Price Check Search Results')
-		.addFields({
-			name: 'Search',
-			value: `\`${query}\``
-		}, {
-			name: 'Fair price',
-			value: '£' + fairPrice
-		}, {
-			name: 'Confidence',
-			value: +confidence.toFixed(5) + '%'
-		}, {
-			name: 'Notes',
-			value: accuracyMsg
-		}, )
-		.setTimestamp();
-
-	return embedBox;
-}
