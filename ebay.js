@@ -3,7 +3,6 @@
 const credentials = require('./credentials');
 const ebayNode = require('ebay-node-api');
 const u = require('./useful-functions');
-const { boxPlot } = require('./useful-functions');
 
 // ebay connection
 const ebay = new ebayNode({
