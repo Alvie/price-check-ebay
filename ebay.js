@@ -78,7 +78,6 @@ function getPriceArray(items) {
 			const basePrice = u.floatValue(item.sellingStatus[0].currentPrice[0]);
 			const shipping = u.floatValue(item.shippingInfo[0].shippingServiceCost[0]);
 			const total = basePrice + shipping;
-			console.log(total);
 			priceArray.push(total);
 		}
 	}
