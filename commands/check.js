@@ -36,10 +36,10 @@ async function getEmbedBox(query) {
 	if (soldItems) { // if items found
 		const priceArray = ebay.getPriceArray(soldItems);
 		const priceBP = new u.boxPlot(priceArray);
-		const fairPrice = ebay.getFairPrice(priceBP);
+		const fairPrice = ebay.getFairPrice(priceBP.avgNoOutliers);
 		console.log('Price: £' + fairPrice);
-		const confidence = ebay.getConfidence(priceArray, priceBP);
-		const confidenceMsg = ebay.getConfidenceMsg(priceArray, priceBP);
+		const confidence = ebay.getConfidence(priceArray, priceBP.variance);
+		const confidenceMsg = ebay.getConfidenceMsg(priceArray, priceBP.variance);
 
 		return createEmbedBox(query, fairPrice, confidence, confidenceMsg);
 	} else {

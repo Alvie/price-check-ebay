@@ -17,7 +17,7 @@ const ebay = new ebayNode({
 // avoid contradiction which leads to no results (e.g. iPhone 11 Pro -pro)
 // (NOTE: remove or adapt this function if you will not be filtering for hardware)
 function filterWords(query) {
-	const wordArray = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken', 'with'];
+	const wordArray = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken', 'with', 'for', 'dell', 'hp', 'gigabyte', 'acer', 'lenovo', 'asus', 'alienware', 'laptop'];
 	return wordArray.filter(word => !query.includes(word));
 }
 
@@ -85,24 +85,22 @@ function getPriceArray(items) {
 
 // calculate fair price
 //   - calculate average price & multiply by * 0.9
-function getFairPrice(priceBP) {
-	//const priceBP = new boxPlot(priceArray);
-	const arrAvg = priceBP.avgNoOutliers;
+function getFairPrice(avgNoOutliers) {
+	const arrAvg = avgNoOutliers;
 	return (arrAvg * 0.9).toFixed(2); // 10% off of average to account for ebay fees
 }
 
 // get confidence as percentage
 // based on noOfItems found and the price range
-function getConfidence(priceArray, priceBP) {
+function getConfidence(priceArray, variance) {
 	//const maxPrice = Math.max(...priceArray);
 
 	// confidence based on number of items (capped at 50%)
 	const itemsAcc = u.clamp((priceArray.length * 0.1), 0, 0.5);
 
 	// confidence based on the variance of price (capped at 50%)
-	//const priceBP = new boxPlot(priceArray);
-	console.log('Variance:', priceBP.variance)
-	const priceRangeAcc = u.clamp(priceBP.variance/1.7, 0, 0.5); // could divide by 2 instead of 1.7 to remove need for clamp
+	console.log('Variance:', variance)
+	const priceRangeAcc = u.clamp(variance/1.7, 0, 0.5); // could divide by 2 instead of 1.7 to remove need for clamp
 																 // set at 1.7 to seem more 'confident'
 
 	// confidence based on above accuracies with priceRangeAcc inverted
@@ -114,14 +112,14 @@ function getConfidence(priceArray, priceBP) {
 //   - find price range
 //   - if not 5 sold, confidenceMsg =  'not confident, not enough items to query'
 //   - if price range >= 15% of average price, confidenceMsg = 'not confident, large variance'
-function getConfidenceMsg(priceArray, priceBP) {
+function getConfidenceMsg(priceArray, variance) {
 	let confidenceMsg = '> **Not confident:** \n'; // set as Not confident as default
 	const noOfItems = priceArray.length;
 	// append not confident messages
 	if (noOfItems < 5) {
 		confidenceMsg += `> - only ${noOfItems} item(s) checked\n`
 	};
-	if (priceBP.variance < 0.55) {
+	if (variance < 0.55) {
 		confidenceMsg += '> - large price variance\n'
 	};
 
