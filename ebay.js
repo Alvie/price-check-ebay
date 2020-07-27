@@ -17,15 +17,15 @@ const ebay = new ebayNode({
 // avoid contradiction which leads to no results (e.g. iPhone 11 Pro -pro)
 // (NOTE: remove or adapt this function if you will not be filtering for hardware)
 function filterWords(query) {
-	const wordArray = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken', 'with', 'for', 'dell', 'hp', 'gigabyte', 'acer', 'lenovo', 'asus', 'alienware', 'laptop'];
-	return wordArray.filter(word => !query.includes(word));
+	const wordArray = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken', 'with', 'for', 'dell', 'hp', 'gigabyte', 'acer', 'lenovo', 'asus', 'alienware', 'parts'];
+	return wordArray.filter(word => query.indexOf(word) === -1); // !query.includes(word)
 }
 
 // adds in edge cases for query
 // (NOTE: remove or adapt this function if you will not be filtering for hardware)
 function addEdgeCases(wordArray, query) {
 	// common inclusion of 'max' in product title of processors (i.e. max boost);
-	if (wordArray.includes('max') && (query.includes('amd') || query.includes('intel'))) {
+	if (wordArray.includes('max') && (query.indexOf('amd') !== -1|| query.indexOf('intel') !== -1)) {
 		return wordArray.filter(word => word !== 'max'); // removes word max the array
 	}
 	else {
@@ -49,7 +49,7 @@ function getQueryString(query) {
 // for a given search term
 // and returns items as an array
 async function getSoldItems(query) {
-	console.log('Checking:', query)
+	console.log('Checking:', query);
 	const queryString = getQueryString(query.toLowerCase()); // filter versions (pro, max, plus, ti, super, xt) etc (NOTE: remove this line if you will not be filtering)
 	try {
 		const data = await ebay.findCompletedItems({
