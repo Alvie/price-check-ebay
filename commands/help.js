@@ -10,9 +10,9 @@ module.exports = {
 	description: 'Instructions on how to use price check',
 	execute(message) {
 		const helpMsg = `The command is:
-\`${prefix}check\`  followed by the product name
+\`${prefix}check [product name]\`
 **Example**
-> e!check AMD Ryzen 7 3700x
+> ${prefix}check AMD Ryzen 7 3700x
 	
 For more popular items, you'll get better results with specificity.
 **Example**
@@ -21,7 +21,13 @@ For more popular items, you'll get better results with specificity.
 For rare items, you'll get better results with less specificity.
 **Example**
 > 'Corsair SF450' will get better results than 'Corsair SF450 80+ Gold Modular PSU'
-	
+
+Ensure product names and models are correct.
+**Example**
+> 'HyperX Cloud II' will get better results than 'Hyper X Cloud 2'
+
+**NOTE: Even if the bot replies it is confident, take it with a grain of salt and ALWAYS DOUBLE CHECK.**
+
 If you believe that there is a significant error or no results when there should be, please DM \`@AlvieMahmud#9999\` with your product name, expected results and results you received.
 		`;
 		message.channel.send(helpMsg);

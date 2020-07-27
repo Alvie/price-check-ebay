@@ -129,7 +129,7 @@ function getConfidenceMsg(priceArray, priceBP) {
 		confidenceMsg = '> **Confident** \n';
 	}
 
-	confidenceMsg += '**⚠     Always double check     ⚠**\n Downvote if wrong / Upvote if right';
+	confidenceMsg += '\n**⚠ ALWAYS DOUBLE CHECK ⚠**\nDOWNVOTE IF WRONG | UPVOTE IF RIGHT';
 
 	return confidenceMsg;
 }
