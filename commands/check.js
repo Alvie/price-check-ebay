@@ -11,6 +11,16 @@ const {
 // check if string has non-ASCII characters
 const nonASCII = str => [...str].some(char => char.charCodeAt(0) > 127);
 
+const INFO_NOTES = `\`\`\`
+🔎 BEST RESULTS 🔍
+- Make sure to include manufacturer for best results
+- $help for more info
+
+⚠ ALWAYS DOUBLE CHECK ⚠
+- Prices found from eBay based on your search with 10% off
+- May be wrong even with high confidence
+\`\`\``
+
 module.exports = {
 	name: 'check',
 	aliases: ['pc', 'chk', 'price', 'pricecheck', 'search'],
@@ -26,23 +36,13 @@ module.exports = {
 			message.channel.send(`Product name cannot contain non ASCII characters`);
 		} else {
 			const embedBox = await getEmbedBox(query);
-			const infoNotes = `\`\`\`
-🔎 BEST RESULTS 🔍
-- Make sure to include manufacturer for best results
-- $help for more info
-
-⚠ ALWAYS DOUBLE CHECK ⚠
-- Prices found from eBay based on your search with 10% off
-- May be wrong even with high confidence
-\`\`\``;
-			//message.channel.send(`**Results for: ** \`${query}\``).then( msg => message.channel.send(embedBox)).then(message.channel.send(infoNotes));
 			try {
 				await message.channel.send(`**Results for: ** \`${query}\``);
 				const sentEmbed = await message.channel.send(embedBox);
 				if (sentEmbed.embeds[0].color !== 0) { // error color = 0 
 					await sentEmbed.react('✅');
 					await sentEmbed.react('❌');
-					await message.channel.send(infoNotes);
+					await message.channel.send(INFO_NOTES);
 				}
 			} catch {
 				err =>
