@@ -39,7 +39,6 @@ module.exports = {
 			try {
 				await message.channel.send(`**Results for: ** \`${query}\``);
 				const sentEmbed = await message.channel.send(embedBox);
-				console.log(sentEmbed.embeds[0]);
 				if (sentEmbed.embeds[0].color !== 0) { // error color = 0 
 					await sentEmbed.react('✅');
 					await sentEmbed.react('❌');
@@ -47,7 +46,7 @@ module.exports = {
 				}
 			} catch {
 				err =>
-					console.log('fetch failed', err);
+					console.log('send failed', err);
 				return;
 			}
 		}

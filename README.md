@@ -37,6 +37,6 @@ If you believe that there is a significant error or no results when there should
 - Many parts, specifically surrounding the boxPlot class may benefit from some optimisation and/or a refactor
 
 ## Credits
-Gaurav - HardwareSwapUK Member (UI/UX)
+Gaurav - HardwareSwapUK Member (UI/UX)  
 HardwareSwapUK #coding (general)
 
