@@ -39,9 +39,12 @@ module.exports = {
 			try {
 				await message.channel.send(`**Results for: ** \`${query}\``);
 				const sentEmbed = await message.channel.send(embedBox);
-				await sentEmbed.react('✅');
-				await sentEmbed.react('❌');
-				await message.channel.send(infoNotes);
+				console.log(sentEmbed.embeds[0]);
+				if (sentEmbed.embeds[0].color !== 0) { // error color = 0 
+					await sentEmbed.react('✅');
+					await sentEmbed.react('❌');
+					await message.channel.send(infoNotes);
+				}
 			} catch {
 				err =>
 					console.log('fetch failed', err);
@@ -63,7 +66,7 @@ async function getEmbedBox(query) {
 		const fairPriceRange = `£${u.calcFair(priceBP.lowerQuartile)} - £${u.calcFair(priceBP.upperQuartile)}`;
 		const median = `£${u.calcFair(priceBP.median)}`;
 		const average = `£${u.calcFair(priceBP.avgNoOutliers)}`;
-		
+
 		console.log(`Fair price: ${fairPriceRange}
 Median: ${median}
 Average: ${average}`);
@@ -74,7 +77,7 @@ Average: ${average}`);
 		return createEmbedBox(fairPriceRange, median, average, confidence, confidenceMsg);
 	} else {
 		console.log(`No items found for ${query}`);
-		return createEmbedBox('N/A', 'N/A', 'N/A', 0, '>>> No items found for above query\nMake sure to include manufacturer for best results\n Please try another search term\n If you feel this is in error, PM @AlvieMahmud#9999');
+		return createEmbedBox('N/A', 'N/A', 'N/A', 0, `No items found for above query\nMake sure to include manufacturer for best results (${prefix}help for more info)\nPlease try another search term\nIf you feel this is in error, DM <@135464598999400448>`);
 	}
 }
 
@@ -100,32 +103,40 @@ function getColour(confidence) {
 // confidence = Float / Numeric Value
 // confidenceMsg = String
 function createEmbedBox(fairPriceRange, median, average, confidence, confidenceMsg) {
-
-
-	const embedBox = new Discord.MessageEmbed()
-		.setColor(getColour(confidence)) //.setTitle('Price Check Search Results')
-		.addFields({
-			name: 'Fair price',
-			value: fairPriceRange,
-			inline: true
-		}, {
-			name: 'Median',
-			value: median,
-			inline: true
-		}, {
-			name: 'Average',
-			value: average,
-			inline: true
-		}, {
-			name: 'Confidence',
-			value: +confidence.toFixed(2) + '%',
-			inline: true
-		})
-		.addFields({
-			name: 'Notes',
-			value: confidenceMsg
-		})
-		.setTimestamp();
+	let embedBox = new Discord.MessageEmbed()
+	if (fairPriceRange === 'N/A') {
+		embedBox
+			.setColor('#000000') // set error color to 0
+			.addFields({
+				name: 'Error',
+				value: confidenceMsg
+			})
+			.setTimestamp();
+	} else {
+		embedBox
+			.setColor(getColour(confidence)) //.setTitle('Price Check Search Results')
+			.addFields({
+				name: 'Fair price',
+				value: fairPriceRange,
+				inline: true
+			}, {
+				name: 'Median',
+				value: median,
+				inline: true
+			}, {
+				name: 'Average',
+				value: average,
+				inline: true
+			}, {
+				name: 'Confidence',
+				value: +confidence.toFixed(2) + '%',
+				inline: true
+			}, {
+				name: 'Notes',
+				value: confidenceMsg
+			})
+			.setTimestamp();
+	}
 
 	return embedBox;
 }
