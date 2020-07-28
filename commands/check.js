@@ -32,13 +32,15 @@ module.exports = {
 - $help for more info
 
 ⚠ ALWAYS DOUBLE CHECK ⚠
-- Prices found from ebay based on your search with 10% off
+- Prices found from eBay based on your search with 10% off
 - May be wrong even with high confidence
 \`\`\``;
 			//message.channel.send(`**Results for: ** \`${query}\``).then( msg => message.channel.send(embedBox)).then(message.channel.send(infoNotes));
 			try {
 				await message.channel.send(`**Results for: ** \`${query}\``);
-				await message.channel.send(embedBox);
+				const sentEmbed = await message.channel.send(embedBox);
+				await sentEmbed.react('✅');
+				await sentEmbed.react('❌');
 				await message.channel.send(infoNotes);
 			} catch {
 				err =>

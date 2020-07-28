@@ -94,7 +94,7 @@ function getConfidence(priceArray, variance) {
 	// confidence based on the variance of price (capped at 50%)
 	console.log('Variance:', variance)
 	const priceRangeAcc = variance / 2; // capped at 0.5 by nature as variance cannot be more than 1
-	// confidence based on above accuracies with priceRangeAcc inverted
+	
 	const confidence = priceRangeAcc + itemsAcc;
 	return confidence * 100;
 }
@@ -116,7 +116,7 @@ function getConfidenceMsg(priceArray, variance) {
 		confidenceMsg = 'Confident \n';
 	}
 
-	confidenceMsg += '\n**REACT ✅ / ❌ IF RIGHT / WRONG**';
+	confidenceMsg += '\nReact ✅ or ❌';
 
 	return confidenceMsg;
 }
