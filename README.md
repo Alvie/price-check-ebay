@@ -4,7 +4,7 @@
 ## Installation
 - Clone this repository
 - run `npm i`
-- set your prefix in `config.json` (default: £)
+- set your prefix in `config.json` (default: $)
 - set your discord token and ebay clientId in `credentials.json`
 - set git to assume that credentials is unchanged (`git update-index --assume-unchanged credentials.json`)
 - run `node server`
