@@ -28,6 +28,9 @@ function addEdgeCases(wordArray, query) {
 	if (wordArray.includes('max') && (query.indexOf('amd') !== -1|| query.indexOf('intel') !== -1)) {
 		return wordArray.filter(word => word !== 'max'); // removes word max the array
 	}
+	if (wordArray.includes('pc') && (query.indexOf('case') !== -1)) {
+		return wordArray.filter(word => word !== 'pc'); // removes word max the array
+	}
 	else {
 		return wordArray;
 	}
