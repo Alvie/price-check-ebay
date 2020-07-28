@@ -13,6 +13,9 @@ const range = numArray => max(numArray) - min(numArray);
 // average = sum / quantity of numeric Array
 const average = numArray => numArray.reduce((a, b) => a + b, 0) / numArray.length;
 
+// fair value calculator & fix to 2dp
+const calcFair = value => (value*0.9).toFixed(2);
+
 // !!!! FOLLOWING CODE IS ADAPTED FROM https://stackoverflow.com/questions/48719873/how-to-get-median-and-quartiles-percentiles-of-an-array-in-javascript-or-php !!!! \\
 
 const quantile = (arr, q) => {
@@ -34,6 +37,7 @@ class boxPlot {
 		this.numArray = numArray;
 
 		this.lowerQuartile = quantile(numArray, .25);
+		this.median = quantile(numArray, .50);
 		this.upperQuartile = quantile(numArray, .75);
 		this.interQuartile = this.upperQuartile - this.lowerQuartile;
 
@@ -67,5 +71,6 @@ module.exports = {
 	floatValue,
 	range,
 	average,
+	calcFair,
 	boxPlot
 };

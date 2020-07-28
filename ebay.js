@@ -85,9 +85,13 @@ function getPriceArray(items) {
 
 // calculate fair price
 //   - calculate average price & multiply by * 0.9
-function getFairPrice(avgNoOutliers) {
-	const arrAvg = avgNoOutliers;
-	return (arrAvg * 0.9).toFixed(2); // 10% off of average to account for ebay fees
+function getFairPrice(avg, lQ, median, uQ) {
+	const priceString = `£${u.calcFair(lQ)} - £${u.calcFair(uQ)}
+	> **Median:** *£${u.calcFair(median)}*
+	> **Average:** *£${u.calcFair(avg)}*
+	`;
+	
+	return priceString; // 10% off of average to account for ebay fees
 }
 
 // get confidence as percentage
@@ -96,13 +100,12 @@ function getConfidence(priceArray, variance) {
 	//const maxPrice = Math.max(...priceArray);
 
 	// confidence based on number of items (capped at 50%)
-	const itemsAcc = u.clamp((priceArray.length * 0.1), 0, 0.5);
+	const itemsAcc = u.clamp((priceArray.length * 0.05), 0, 0.5); // 5% per item upto 50% total
 
 	// confidence based on the variance of price (capped at 50%)
 	console.log('Variance:', variance)
 	const priceRangeAcc = u.clamp(variance/1.7, 0, 0.5); // could divide by 2 instead of 1.7 to remove need for clamp
 																 // set at 1.7 to seem more 'confident'
-
 	// confidence based on above accuracies with priceRangeAcc inverted
 	const confidence = priceRangeAcc + itemsAcc;
 	return confidence * 100;
@@ -113,21 +116,25 @@ function getConfidence(priceArray, variance) {
 //   - if not 5 sold, confidenceMsg =  'not confident, not enough items to query'
 //   - if price range >= 15% of average price, confidenceMsg = 'not confident, large variance'
 function getConfidenceMsg(priceArray, variance) {
-	let confidenceMsg = '> **Not confident:** \n'; // set as Not confident as default
+	let confidenceMsg = 'Not confident: \n'; // set as Not confident as default
 	const noOfItems = priceArray.length;
 	// append not confident messages
-	if (noOfItems < 5) {
+	if (noOfItems < 10) {
 		confidenceMsg += `> - only ${noOfItems} item(s) checked\n`
 	};
 	if (variance < 0.55) {
 		confidenceMsg += '> - large price variance\n'
 	};
 
-	if (confidenceMsg === '> **Not confident:** \n') { // remove default if no change
-		confidenceMsg = '> **Confident** \n';
+	if (confidenceMsg === 'Not confident: \n') { // remove default if no change
+		confidenceMsg = 'Confident \n';
 	}
 
-	confidenceMsg += '\n**⚠ ALWAYS DOUBLE CHECK ⚠**\nDOWNVOTE IF WRONG | UPVOTE IF RIGHT';
+	confidenceMsg += `
+	**⚠ ALWAYS DOUBLE CHECK ⚠**
+	DOWNVOTE IF WRONG | UPVOTE IF RIGHT
+	> Prices found from ebay based on your search
+	> May be wrong even with high confidence`;
 
 	return confidenceMsg;
 }

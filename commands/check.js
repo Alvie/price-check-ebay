@@ -11,7 +11,7 @@ const nonASCII = str => [...str].some(char => char.charCodeAt(0) > 127);
 
 module.exports = {
 	name: 'check',
-	aliases: ['pc', 'chk', 'price', 'pricecheck'],
+	aliases: ['pc', 'chk', 'price', 'pricecheck', 'search'],
 	cooldown: 5,
 	args: true,
 	description: 'Price check command',
@@ -36,8 +36,8 @@ async function getEmbedBox(query) {
 	if (soldItems) { // if items found
 		const priceArray = ebay.getPriceArray(soldItems);
 		const priceBP = new u.boxPlot(priceArray);
-		const fairPrice = ebay.getFairPrice(priceBP.avgNoOutliers);
-		console.log('Price: £' + fairPrice);
+		const fairPrice = ebay.getFairPrice(priceBP.avgNoOutliers, priceBP.lowerQuartile, priceBP.median, priceBP.upperQuartile);
+		console.log('Price:', fairPrice);
 		const confidence = ebay.getConfidence(priceArray, priceBP.variance);
 		const confidenceMsg = ebay.getConfidenceMsg(priceArray, priceBP.variance);
 
@@ -62,10 +62,10 @@ function createEmbedBox(query, fairPrice, confidence, confidenceMsg) {
 			value: `\`${query}\``
 		}, {
 			name: 'Fair price',
-			value: '£' + fairPrice
+			value: fairPrice
 		}, {
 			name: 'Confidence',
-			value: +confidence.toFixed(5) + '%'
+			value: +confidence.toFixed(2) + '%'
 		}, {
 			name: 'Notes',
 			value: confidenceMsg
