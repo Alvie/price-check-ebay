@@ -17,7 +17,7 @@ const ebay = new ebayNode({
 // avoid contradiction which leads to no results (e.g. iPhone 11 Pro -pro)
 // (NOTE: remove or adapt this function if you will not be filtering for hardware)
 function filterWords(query) {
-	const wordArray = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken', 'with', 'for', 'dell', 'hp', 'gigabyte', 'acer', 'lenovo', 'asus', 'alienware', 'parts'];
+	const wordArray = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken', 'with', 'for', 'dell', 'hp', 'gigabyte', 'acer', 'lenovo', 'asus', 'alienware', 'parts', 'charger', 'dock', 'case', 'replicator', 'keyboard'];
 	return wordArray.filter(word => query.indexOf(word) === -1); // !query.includes(word)
 }
 
@@ -83,17 +83,6 @@ function getPriceArray(items) {
 	return priceArray;
 }
 
-// calculate fair price
-//   - calculate average price & multiply by * 0.9
-function getFairPrice(avg, lQ, median, uQ) {
-	const priceString = `£${u.calcFair(lQ)} - £${u.calcFair(uQ)}
-	> **Median:** *£${u.calcFair(median)}*
-	> **Average:** *£${u.calcFair(avg)}*
-	`;
-	
-	return priceString; // 10% off of average to account for ebay fees
-}
-
 // get confidence as percentage
 // based on noOfItems found and the price range
 function getConfidence(priceArray, variance) {
@@ -104,17 +93,14 @@ function getConfidence(priceArray, variance) {
 
 	// confidence based on the variance of price (capped at 50%)
 	console.log('Variance:', variance)
-	const priceRangeAcc = u.clamp(variance/1.7, 0, 0.5); // could divide by 2 instead of 1.7 to remove need for clamp
-																 // set at 1.7 to seem more 'confident'
+	const priceRangeAcc = variance / 2; // capped at 0.5 by nature as variance cannot be more than 1
 	// confidence based on above accuracies with priceRangeAcc inverted
 	const confidence = priceRangeAcc + itemsAcc;
 	return confidence * 100;
 }
 
 // include confidence message
-//   - find price range
-//   - if not 5 sold, confidenceMsg =  'not confident, not enough items to query'
-//   - if price range >= 15% of average price, confidenceMsg = 'not confident, large variance'
+// from number of items found & price variance
 function getConfidenceMsg(priceArray, variance) {
 	let confidenceMsg = 'Not confident: \n'; // set as Not confident as default
 	const noOfItems = priceArray.length;
@@ -122,7 +108,7 @@ function getConfidenceMsg(priceArray, variance) {
 	if (noOfItems < 10) {
 		confidenceMsg += `> - only ${noOfItems} item(s) checked\n`
 	};
-	if (variance < 0.55) {
+	if (variance < 0.6) {
 		confidenceMsg += '> - large price variance\n'
 	};
 
@@ -130,11 +116,7 @@ function getConfidenceMsg(priceArray, variance) {
 		confidenceMsg = 'Confident \n';
 	}
 
-	confidenceMsg += `
-	**⚠ ALWAYS DOUBLE CHECK ⚠**
-	DOWNVOTE IF WRONG | UPVOTE IF RIGHT
-	> Prices found from ebay based on your search
-	> May be wrong even with high confidence`;
+	confidenceMsg += '\n**REACT ✅ / ❌ IF RIGHT / WRONG**';
 
 	return confidenceMsg;
 }
@@ -142,7 +124,6 @@ function getConfidenceMsg(priceArray, variance) {
 module.exports = {
 	getSoldItems,
 	getPriceArray,
-	getFairPrice,
 	getConfidence,
 	getConfidenceMsg
 };

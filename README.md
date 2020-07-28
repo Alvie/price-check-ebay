@@ -18,9 +18,9 @@ You can also change various parameters such as between new/used, sort order, etc
 
 ## Usage
 The command is:
-`£check`  followed by the product name  
+`$check`  followed by the product name  
 **Example**
-> £check AMD Ryzen 7 3700x
+> $check AMD Ryzen 7 3700x
 	
 For more popular items, you'll get better results with specificity.  
 **Example**
@@ -34,3 +34,8 @@ If you believe that there is a significant error or no results when there should
 
 ## Improvements
 - Many parts, specifically surrounding the boxPlot class may benefit from some optimisation and/or a refactor
+
+## Credits
+Gaurav - HardwareSwapUK Member (UI/UX)
+HardwareSwapUK #coding (general)
+

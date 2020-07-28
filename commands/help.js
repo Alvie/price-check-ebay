@@ -9,27 +9,28 @@ module.exports = {
 	cooldown: 5,
 	description: 'Instructions on how to use price check',
 	execute(message) {
-		const helpMsg = `The command is:
-\`${prefix}check [product name]\`
-**Example**
-> ${prefix}check AMD Ryzen 7 3700x
-	
-For more popular items, you'll get better results with specificity.
-**Example**
-> 'EVGA RTX 2070 SUPER XC ULTRA' will get better results than 'EVGA RTX 2070'
-	
-For rare items, you'll get better results with less specificity.
-**Example**
-> 'Corsair SF450' will get better results than 'Corsair SF450 80+ Gold Modular PSU'
+		const helpMsg = `COMMAND: ${prefix}check [item to search]
+EXAMPLE: ${prefix}check AMD Ryzen 7 3700x CPU
 
-Ensure product names and models are correct.
-**Example**
-> 'HyperX Cloud II' will get better results than 'Hyper X Cloud 2'
+For popular items, be more specific. With rarer items, be less.
+Ensure manufacturer names are included and product names and models are correct.
 
-**NOTE: Even if the bot replies it is confident, take it with a grain of salt and ALWAYS DOUBLE CHECK.**
+Examples:
 
-If you believe that there is a significant error or no results when there should be, please DM \`@AlvieMahmud#9999\` with your product name, expected results and results you received.
-		`;
+	[POPULAR]
+	- 'EVGA RTX 2070 SUPER XC ULTRA' > 'EVGA RTX 2070'
+
+	[RARE]
+	- 'Corsair SF450' > 'Corsair SF450 80+ Gold Modular PSU'
+
+	[MANUFACTURER NAME + CORRECTNESS]
+	- 'HyperX Cloud II' > 'Cloud 2 PC Headset'
+
+⚠ ALWAYS DOUBLE CHECK ⚠
+- Prices found from ebay based on your search with 10% off
+- May be wrong even with high confidence
+
+If you believe that there is a significant error or no results when there should be, please DM @AlvieMahmud#9999 with your product name, expected results and results you received.`;
 		message.channel.send(helpMsg);
 	},
 };
