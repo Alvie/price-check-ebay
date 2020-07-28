@@ -74,7 +74,7 @@ Average: ${average}`);
 		return createEmbedBox(fairPriceRange, median, average, confidence, confidenceMsg);
 	} else {
 		console.log(`No items found for ${query}`);
-		return createEmbedBox('N/A', 0, '>>> No items found for above query\nMake sure to include manufacturer for best results\n Please try another search term\n If you feel this is in error, PM @AlvieMahmud#9999');
+		return createEmbedBox('N/A', 'N/A', 'N/A', 0, '>>> No items found for above query\nMake sure to include manufacturer for best results\n Please try another search term\n If you feel this is in error, PM @AlvieMahmud#9999');
 	}
 }
 
