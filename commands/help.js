@@ -9,7 +9,8 @@ module.exports = {
 	cooldown: 5,
 	description: 'Instructions on how to use price check',
 	execute(message) {
-		const helpMsg = `COMMAND: ${prefix}check [item to search]
+		const helpMsg = `\`\`\`
+COMMAND: ${prefix}check [item to search]
 EXAMPLE: ${prefix}check AMD Ryzen 7 3700x CPU
 
 For popular items, be more specific. With rarer items, be less.
@@ -30,7 +31,8 @@ Examples:
 - Prices found from ebay based on your search with 10% off
 - May be wrong even with high confidence
 
-If you believe that there is a significant error or no results when there should be, please DM @AlvieMahmud#9999 with your product name, expected results and results you received.`;
+If you believe that there is a significant error or no results when there should be, please DM @AlvieMahmud#9999 with your product name, expected results and results you received.
+\`\`\``;
 		message.channel.send(helpMsg);
 	},
 };
