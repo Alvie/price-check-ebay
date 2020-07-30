@@ -17,7 +17,7 @@ const ebay = new ebayNode({
 // avoid contradiction which leads to no results (e.g. iPhone 11 Pro -pro)
 // (NOTE: remove or adapt this function if you will not be filtering for hardware)
 function filterWords(query) {
-	const wordArray = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken', 'with', 'for', 'dell', 'hp', 'gigabyte', 'acer', 'lenovo', 'asus', 'alienware', 'parts', 'charger', 'dock', 'case', 'replicator', 'keyboard', 'mini', 'lite', 'crack', 'cracked'];
+	const wordArray = ['pro', 'plus', 'max', 'super', 'bundle', 'combo', 'faulty', 'ti', 'xt', 'spare', 'spares', 'repair', 'repairs', 'cooler', 'pc', 'damaged', 'broken', 'with', 'for', 'dell', 'hp', 'gigabyte', 'acer', 'lenovo', 'asus', 'alienware', 'parts', 'charger', 'dock', 'case', 'replicator', 'keyboard', 'mini', 'lite', 'crack', 'cracked', '5g'];
 	return wordArray.filter(word => query.indexOf(word) === -1); // !query.includes(word)
 }
 
