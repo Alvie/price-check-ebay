@@ -4,7 +4,7 @@ const ebay = require('../ebay');
 const Discord = require('discord.js');
 const u = require('../useful-functions');
 // easily change prefix in config.json
-const {	prefix } = require('../config.json');
+const { prefix } = require('../config.json');
 
 // check if string has non-ASCII characters
 const nonASCII = str => [...str].some(char => char.charCodeAt(0) > 127);
@@ -35,8 +35,12 @@ module.exports = {
 		} else if (nonASCII(query)) {
 			message.channel.send(`Product name cannot contain non ASCII characters`);
 		} else {
-			const embedBox = await getEmbedBox(query);
+			const userJoinDate = await message.guild.member(message.author).joinedAt;
+			const showWarn = u.showWarn(userJoinDate);
+			const embedBox = await getEmbedBox(query, showWarn);
 			try {
+				// 30 days ago >= joinDate
+				console.log(Date.now());
 				const sentEmbed = await message.channel.send(embedBox);
 				if (sentEmbed.embeds[0].color !== 0) { // error color = 0 
 					await sentEmbed.react('✅');
@@ -53,7 +57,7 @@ module.exports = {
 
 
 // return an embed box with information regarding the results found
-async function getEmbedBox(query) {
+async function getEmbedBox(query, showWarn) {
 	const soldItems = await ebay.getSoldItems(query);
 
 	if (soldItems) { // if items found
@@ -71,10 +75,12 @@ Average: ${average}`);
 		const confidence = ebay.getConfidence(priceArray, priceBP.variance);
 		const confidenceMsg = ebay.getConfidenceMsg(priceArray, priceBP.variance);
 
-		return createEmbedBox(query, fairPriceRange, median, average, confidence, confidenceMsg);
+		return createEmbedBox(query, fairPriceRange, median, average, confidence, confidenceMsg, showWarn);
 	} else {
 		console.log(`No items found for ${query}`);
-		return createEmbedBox(query, 'N/A', 'N/A', 'N/A', 0, `Make sure to include manufacturer for best results (${prefix}help for more info)\nPlease try another search term\nIf you feel this is in error, DM <@135464598999400448>`);
+		return createEmbedBox(query, 'N/A', 'N/A', 'N/A', 0, `Make sure to include manufacturer for best results (${prefix}help for more info)
+Please try another search term
+If you feel this is in error, DM <@135464598999400448>`, false);
 	}
 }
 
@@ -99,8 +105,8 @@ function getColour(confidence) {
 // average = String / Numeric Value
 // confidence = Float / Numeric Value
 // confidenceMsg = String
-function createEmbedBox(query, fairPriceRange, median, average, confidence, confidenceMsg) {
-	let embedBox = new Discord.MessageEmbed()
+function createEmbedBox(query, fairPriceRange, median, average, confidence, confidenceMsg, showWarn) {
+	let embedBox = new Discord.MessageEmbed();
 	if (fairPriceRange === 'N/A') {
 		embedBox
 			.setTitle('Error')
@@ -109,18 +115,14 @@ function createEmbedBox(query, fairPriceRange, median, average, confidence, conf
 				name: `No results found for:  \`${query}\``,
 				value: confidenceMsg
 			}, {
-				name: `🔎 BEST RESULTS 🔍`,
+				name: '🔎 BEST RESULTS 🔍',
 				value: BEST_RESULTS
-			}, {
-				name: `⚠ ALWAYS DOUBLE CHECK ⚠`,
-				value: DOUBLE_CHECK
-			}
-			)
+			})
 			.setTimestamp();
 	} else {
 		embedBox
 			.setTitle(`Results found for: \`${query}\``)
-			.setColor(getColour(confidence)) //.setTitle('Price Check Search Results')
+			.setColor(getColour(confidence))
 			.addFields({
 				name: 'Fair price',
 				value: fairPriceRange,
@@ -137,16 +139,14 @@ function createEmbedBox(query, fairPriceRange, median, average, confidence, conf
 				name: 'Confidence',
 				value: `${+confidence.toFixed(2) + '%'}` + confidenceMsg
 			}, {
-				name: `🔎 BEST RESULTS 🔍`,
+				name: '🔎 BEST RESULTS 🔍',
 				value: BEST_RESULTS
-			}, {
-				name: `⚠ ALWAYS DOUBLE CHECK ⚠`,
-				value: DOUBLE_CHECK
-			} , {
-				name: '\u200B',
-				value: 'React ✅ or ❌'
-			})
-			.setTimestamp();
+			});
+		
+		// add double check message if join date is less than 30 days
+		if (showWarn) embedBox.addFields({ name: '⚠ ALWAYS DOUBLE CHECK ⚠',value: DOUBLE_CHECK });
+		// add react message and set timestamp
+		embedBox.addFields({ name: '\u200B', value: 'React ✅ or ❌' }).setTimestamp();
 	}
 
 	return embedBox;

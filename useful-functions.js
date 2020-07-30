@@ -13,6 +13,9 @@ const range = numArray => max(numArray) - min(numArray);
 // average = sum / quantity of numeric Array
 const average = numArray => numArray.reduce((a, b) => a + b, 0) / numArray.length;
 
+// determines whether or not to show warning for user (if guild join date < 30 days)
+const showWarn = timeStamp => timeStamp >= (Date.now() - 2592000000)
+
 // fair value calculator & fix to 2dp
 const calcFair = value => (value*0.9).toFixed(2);
 
@@ -72,5 +75,6 @@ module.exports = {
 	range,
 	average,
 	calcFair,
-	boxPlot
+	boxPlot,
+	showWarn
 };
