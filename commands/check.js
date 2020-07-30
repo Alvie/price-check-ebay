@@ -35,12 +35,10 @@ module.exports = {
 		} else if (nonASCII(query)) {
 			message.channel.send(`Product name cannot contain non ASCII characters`);
 		} else {
-			const userJoinDate = await message.guild.member(message.author).joinedAt;
-			const showWarn = u.showWarn(userJoinDate);
+			const userJoinDate = await message.guild.member(message.author).joinedAt; // get member's join date
+			const showWarn = u.showWarn(userJoinDate); // true if join date < 30 days
 			const embedBox = await getEmbedBox(query, showWarn);
 			try {
-				// 30 days ago >= joinDate
-				console.log(Date.now());
 				const sentEmbed = await message.channel.send(embedBox);
 				if (sentEmbed.embeds[0].color !== 0) { // error color = 0 
 					await sentEmbed.react('✅');
