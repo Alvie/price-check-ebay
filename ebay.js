@@ -105,7 +105,7 @@ function getConfidence(priceArray, variance) {
 // include confidence message
 // from number of items found & price variance
 function getConfidenceMsg(priceArray, variance) {
-	let confidenceMsg = 'Not confident: \n'; // set as Not confident as default
+	let confidenceMsg = '\n**Not confident:** \n'; // set as Not confident as default
 	const noOfItems = priceArray.length;
 	// append not confident messages
 	if (noOfItems < 10) {
@@ -115,11 +115,9 @@ function getConfidenceMsg(priceArray, variance) {
 		confidenceMsg += '> - large price variance\n'
 	};
 
-	if (confidenceMsg === 'Not confident: \n') { // remove default if no change
-		confidenceMsg = 'Confident \n';
+	if (confidenceMsg === '\n**Not confident:** \n') { // remove default if no change
+		confidenceMsg = '\u200B'; // if confident, set message to empty - implied by high percentage
 	}
-
-	confidenceMsg += '\nReact ✅ or ❌';
 
 	return confidenceMsg;
 }

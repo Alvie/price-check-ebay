@@ -4,19 +4,17 @@ const ebay = require('../ebay');
 const Discord = require('discord.js');
 const u = require('../useful-functions');
 // easily change prefix in config.json
-const {
-	prefix
-} = require('../config.json');
+const {	prefix } = require('../config.json');
 
 // check if string has non-ASCII characters
 const nonASCII = str => [...str].some(char => char.charCodeAt(0) > 127);
 
-const INFO_NOTES = `\`\`\`
-🔎 BEST RESULTS 🔍
+const BEST_RESULTS = `\`\`\`
 - Make sure to include manufacturer for best results
 - $help for more info
+\`\`\``
 
-⚠ ALWAYS DOUBLE CHECK ⚠
+const DOUBLE_CHECK = `\`\`\`
 - Prices found from eBay based on your search with 10% off
 - May be wrong even with high confidence
 \`\`\``
@@ -31,18 +29,18 @@ module.exports = {
 	async execute(message, args) {
 		const query = args.join(' ');
 		if (query.length < 10 || query.length > 50) { // ignore queries with less than 9 characters for product name
-			message.channel.send(`You must include a product name (at least 10 characters / less than 50 characters) with your check.\n**Example**\n> ${prefix}check AMD Ryzen 7 3700X`);
+			message.channel.send(`You must include a product name (at least 10 characters / less than 50 characters) with your check.
+**Example**
+> ${prefix}check AMD Ryzen 7 3700X`);
 		} else if (nonASCII(query)) {
 			message.channel.send(`Product name cannot contain non ASCII characters`);
 		} else {
 			const embedBox = await getEmbedBox(query);
 			try {
-				await message.channel.send(`**Results for: ** \`${query}\``);
 				const sentEmbed = await message.channel.send(embedBox);
 				if (sentEmbed.embeds[0].color !== 0) { // error color = 0 
 					await sentEmbed.react('✅');
 					await sentEmbed.react('❌');
-					await message.channel.send(INFO_NOTES);
 				}
 			} catch {
 				err =>
@@ -73,10 +71,10 @@ Average: ${average}`);
 		const confidence = ebay.getConfidence(priceArray, priceBP.variance);
 		const confidenceMsg = ebay.getConfidenceMsg(priceArray, priceBP.variance);
 
-		return createEmbedBox(fairPriceRange, median, average, confidence, confidenceMsg);
+		return createEmbedBox(query, fairPriceRange, median, average, confidence, confidenceMsg);
 	} else {
 		console.log(`No items found for ${query}`);
-		return createEmbedBox('N/A', 'N/A', 'N/A', 0, `No items found for above query\nMake sure to include manufacturer for best results (${prefix}help for more info)\nPlease try another search term\nIf you feel this is in error, DM <@135464598999400448>`);
+		return createEmbedBox(query, 'N/A', 'N/A', 'N/A', 0, `Make sure to include manufacturer for best results (${prefix}help for more info)\nPlease try another search term\nIf you feel this is in error, DM <@135464598999400448>`);
 	}
 }
 
@@ -101,18 +99,27 @@ function getColour(confidence) {
 // average = String / Numeric Value
 // confidence = Float / Numeric Value
 // confidenceMsg = String
-function createEmbedBox(fairPriceRange, median, average, confidence, confidenceMsg) {
+function createEmbedBox(query, fairPriceRange, median, average, confidence, confidenceMsg) {
 	let embedBox = new Discord.MessageEmbed()
 	if (fairPriceRange === 'N/A') {
 		embedBox
+			.setTitle('Error')
 			.setColor('#000000') // set error color to 0
 			.addFields({
-				name: 'Error',
+				name: `No results found for:  \`${query}\``,
 				value: confidenceMsg
-			})
+			}, {
+				name: `🔎 BEST RESULTS 🔍`,
+				value: BEST_RESULTS
+			}, {
+				name: `⚠ ALWAYS DOUBLE CHECK ⚠`,
+				value: DOUBLE_CHECK
+			}
+			)
 			.setTimestamp();
 	} else {
 		embedBox
+			.setTitle(`Results found for: \`${query}\``)
 			.setColor(getColour(confidence)) //.setTitle('Price Check Search Results')
 			.addFields({
 				name: 'Fair price',
@@ -128,11 +135,16 @@ function createEmbedBox(fairPriceRange, median, average, confidence, confidenceM
 				inline: true
 			}, {
 				name: 'Confidence',
-				value: +confidence.toFixed(2) + '%',
-				inline: true
+				value: `${+confidence.toFixed(2) + '%'}` + confidenceMsg
 			}, {
-				name: 'Notes',
-				value: confidenceMsg
+				name: `🔎 BEST RESULTS 🔍`,
+				value: BEST_RESULTS
+			}, {
+				name: `⚠ ALWAYS DOUBLE CHECK ⚠`,
+				value: DOUBLE_CHECK
+			} , {
+				name: '\u200B',
+				value: 'React ✅ or ❌'
 			})
 			.setTimestamp();
 	}
