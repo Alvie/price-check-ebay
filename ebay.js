@@ -31,7 +31,7 @@ function addEdgeCases(wordArray, query) {
 	if (wordArray.includes('pc') && (query.indexOf('case') !== -1)) { // if query contains 'case'
 		return wordArray.filter(word => word !== 'pc'); // removes word pc the array (pc doesn't get filtered out)
 	}
-	if (wordArray.includes('cooler') && (query.indexOf('aio') !== -1 || query.indexOf('air') !== -1)) { // if query contains 'aio' / 'air'
+	if (wordArray.includes('cooler') && (query.indexOf('aio') !== -1 || query.indexOf('air') !== -1 || query.indexOf('liquid') !== -1)) { // if query includes air/aio/liquid
 		return wordArray.filter(word => word !== 'cooler'); // removes word cooler the array (cooler doesn't get filtered out)
 	}
 	else {
