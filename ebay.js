@@ -25,11 +25,14 @@ function filterWords(query) {
 // (NOTE: remove or adapt this function if you will not be filtering for hardware)
 function addEdgeCases(wordArray, query) {
 	// common inclusion of 'max' in product title of processors (i.e. max boost);
-	if (wordArray.includes('max') && (query.indexOf('amd') !== -1|| query.indexOf('intel') !== -1)) {
-		return wordArray.filter(word => word !== 'max'); // removes word max the array
+	if (wordArray.includes('max') && (query.indexOf('amd') !== -1 || query.indexOf('intel') !== -1)) {
+		return wordArray.filter(word => word !== 'max'); // removes word max from the array
 	}
-	if (wordArray.includes('pc') && (query.indexOf('case') !== -1)) {
-		return wordArray.filter(word => word !== 'pc'); // removes word max the array
+	if (wordArray.includes('pc') && (query.indexOf('case') !== -1)) { // if query contains 'case'
+		return wordArray.filter(word => word !== 'pc'); // removes word pc the array (pc doesn't get filtered out)
+	}
+	if (wordArray.includes('cooler') && (query.indexOf('aio') !== -1 || query.indexOf('air') !== -1)) { // if query contains 'aio' / 'air'
+		return wordArray.filter(word => word !== 'cooler'); // removes word cooler the array (cooler doesn't get filtered out)
 	}
 	else {
 		return wordArray;
