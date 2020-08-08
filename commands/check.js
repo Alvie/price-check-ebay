@@ -11,7 +11,7 @@ const nonASCII = str => [...str].some(char => char.charCodeAt(0) > 127);
 
 const BEST_RESULTS = `\`\`\`
 - Make sure to include manufacturer for best results
-- $help for more info
+- ${prefix}help for more info
 \`\`\``
 
 const DOUBLE_CHECK = `\`\`\`
