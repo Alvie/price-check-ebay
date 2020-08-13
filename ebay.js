@@ -80,9 +80,9 @@ function getPriceArray(items) {
 	let priceArray = [];
 	if (items) { // if not an empty array
 		for (const item of items) {
-			console.log(item);
 			const basePrice = u.floatValue(item.sellingStatus[0].currentPrice[0]);
 			let shipping;
+
 			if (item.shippingInfo[0].shippingServiceCost){
 				shipping = u.floatValue(item.shippingInfo[0].shippingServiceCost[0]);
 			} else {
