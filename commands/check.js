@@ -10,7 +10,7 @@ const { prefix } = require('../config.json');
 const nonASCII = str => [...str].some(char => char.charCodeAt(0) > 127);
 
 const BEST_RESULTS = `\`\`\`
-- Make sure to include manufacturer for best results
+- include manufacturer name
 - ${prefix}help for more info
 \`\`\``
 
@@ -143,8 +143,8 @@ function createEmbedBox(query, fairPriceRange, median, average, confidence, conf
 		
 		// add double check message if join date is less than 30 days
 		if (showWarn) embedBox.addFields({ name: '⚠ ALWAYS DOUBLE CHECK ⚠',value: DOUBLE_CHECK });
-		// add react message and set timestamp
-		embedBox.addFields({ name: '\u200B', value: 'React ✅ or ❌' }).setTimestamp();
+		// add react message and set timestamp (uncomment below line)
+		// embedBox.addFields({ name: '\u200B', value: 'React ✅ or ❌' }).setTimestamp();
 	}
 
 	return embedBox;
