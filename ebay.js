@@ -88,7 +88,7 @@ function getPriceArray(items) {
 			} else {
 				shipping = 0.00;
 			}
-			
+
 			const total = basePrice + shipping;
 			priceArray.push(total);
 		}
@@ -106,7 +106,7 @@ function getConfidence(priceArray, variance) {
 
 	// confidence based on the variance of price (capped at 50%)
 	console.log('Variance:', variance)
-	const priceRangeAcc = variance / 2; // capped at 0.5 by nature as variance cannot be more than 1
+	const priceRangeAcc = u.clamp((variance / 2), 0, 0.5);
 	
 	const confidence = priceRangeAcc + itemsAcc;
 	return confidence * 100;
