@@ -15,7 +15,7 @@ const BEST_RESULTS = `\`\`\`
 \`\`\``
 
 const DOUBLE_CHECK = `\`\`\`
-- Prices found from eBay based on your search with 10% off
+- Prices found from eBay based on your search
 - May be wrong even with high confidence
 \`\`\``
 
@@ -61,19 +61,19 @@ async function getEmbedBox(query, showWarn) {
 	if (soldItems) { // if items found
 		const priceArray = ebay.getPriceArray(soldItems);
 		const priceBP = new u.boxPlot(priceArray);
-		// use values from boxPlot, calcFair = * 0.9 and 2dp
-		const fairPriceRange = `£${u.calcFair(priceBP.lowerQuartile)} - £${u.calcFair(priceBP.upperQuartile)}`;
-		const median = `£${u.calcFair(priceBP.median)}`;
-		const average = `£${u.calcFair(priceBP.avgNoOutliers)}`;
+		// use values from boxPlot, currencyFloat = 2dp
+		const priceRange = `£${u.currencyFloat(priceBP.lowerQuartile)} - £${u.currencyFloat(priceBP.upperQuartile)}`;
+		const median = `£${u.currencyFloat(priceBP.median)}`;
+		const average = `£${u.currencyFloat(priceBP.avgNoOutliers)}`;
 
-		console.log(`Fair price: ${fairPriceRange}
+		console.log(`Fair price: ${priceRange}
 Median: ${median}
 Average: ${average}`);
 
 		const confidence = ebay.getConfidence(priceArray, priceBP.variance);
 		const confidenceMsg = ebay.getConfidenceMsg(priceArray, priceBP.variance);
 
-		return createEmbedBox(query, fairPriceRange, median, average, confidence, confidenceMsg, showWarn);
+		return createEmbedBox(query, priceRange, median, average, confidence, confidenceMsg, showWarn);
 	} else {
 		console.log(`No items found for ${query}`);
 		return createEmbedBox(query, 'N/A', 'N/A', 'N/A', 0, `Make sure to include manufacturer for best results (${prefix}help for more info)
@@ -98,14 +98,14 @@ function getColour(confidence) {
 
 // creates a new embed box with specified parameters
 // query = String
-// fairPriceRange = String / Numeric Value
+// priceRange = String / Numeric Value
 // median = String / Numeric Value
 // average = String / Numeric Value
 // confidence = Float / Numeric Value
 // confidenceMsg = String
-function createEmbedBox(query, fairPriceRange, median, average, confidence, confidenceMsg, showWarn) {
+function createEmbedBox(query, priceRange, median, average, confidence, confidenceMsg, showWarn) {
 	let embedBox = new Discord.MessageEmbed();
-	if (fairPriceRange === 'N/A') {
+	if (priceRange === 'N/A') {
 		embedBox
 			.setTitle('Error')
 			.setColor('#000000') // set error color to 0
@@ -115,15 +115,14 @@ function createEmbedBox(query, fairPriceRange, median, average, confidence, conf
 			}, {
 				name: '🔎 BEST RESULTS 🔍',
 				value: BEST_RESULTS
-			})
-			.setTimestamp();
+			});
 	} else {
 		embedBox
 			.setTitle(`Results found for: \`${query}\``)
 			.setColor(getColour(confidence))
 			.addFields({
-				name: 'Fair price',
-				value: fairPriceRange,
+				name: 'Price range',
+				value: priceRange,
 				inline: true
 			}, {
 				name: 'Median',

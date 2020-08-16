@@ -16,8 +16,8 @@ const average = numArray => numArray.reduce((a, b) => a + b, 0) / numArray.lengt
 // determines whether or not to show warning for user (if guild join date < 30 days)
 const showWarn = timeStamp => timeStamp >= (Date.now() - 2592000000)
 
-// fair value calculator & fix to 2dp
-const calcFair = value => (value*0.9).toFixed(2);
+// fix to 2dp for currency
+const currencyFloat = value => (value).toFixed(2);
 
 // !!!! FOLLOWING CODE IS ADAPTED FROM https://stackoverflow.com/questions/48719873/how-to-get-median-and-quartiles-percentiles-of-an-array-in-javascript-or-php !!!! \\
 
@@ -74,7 +74,7 @@ module.exports = {
 	floatValue,
 	range,
 	average,
-	calcFair,
+	currencyFloat,
 	boxPlot,
 	showWarn
 };
