@@ -28,7 +28,7 @@ Examples:
 	- 'HyperX Cloud II' > 'Cloud 2 PC Headset'
 
 ⚠ ALWAYS DOUBLE CHECK ⚠
-- Prices found from ebay based on your search with 10% off
+- Prices found from ebay based on your search
 - May be wrong even with high confidence
 
 If you believe that there is a significant error or no results when there should be, please DM @AlvieMahmud#9999 with your product name, expected results and results you received.
